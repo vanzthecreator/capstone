@@ -1,70 +1,111 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView } from 'react-native';
 
-function AuthChoice() {
-  const navigate = useNavigate();
-
+function AuthChoice({ navigation }) {
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'linear-gradient(180deg, #d1fae5 0%, #a7f3d0 100%)',
-      padding: '1.25rem'
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '420px',
-        background: 'rgba(255,255,255,0.9)',
-        borderRadius: '1.25rem',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-        padding: '2rem',
-        textAlign: 'center'
-      }}>
-        <img
-          src="/images/lifesignal-logo.png"
-          alt="LifeSignal"
-          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-          style={{ width: '96px', height: '96px', objectFit: 'contain', margin: '0 auto 0.75rem' }}
-        />
-        <div style={{ color: '#64748b', marginBottom: '1rem' }}>Choose an option</div>
+    <ScrollView style={styles.container}>
+      <View style={styles.content}>
+        <View style={styles.card}>
+          <Image
+            source={{ uri: '/images/lifesignal-logo.png' }}
+            style={styles.logo}
+          />
+          <Text style={styles.subtitle}>Choose an option</Text>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <button
-            onClick={() => navigate('/login')}
-            style={{
-              width: '100%',
-              background: '#22d3ee',
-              color: '#0f172a',
-              fontWeight: 700,
-              border: '2px solid #6366f1',
-              borderRadius: '0.75rem',
-              padding: '0.85rem 1rem',
-              boxShadow: '0 8px 16px rgba(99,102,241,0.25)'
-            }}
-          >
-            LOGIN
-          </button>
-          <button
-            onClick={() => navigate('/signup')}
-            style={{
-              width: '100%',
-              background: '#67e8f9',
-              color: '#0f172a',
-              fontWeight: 700,
-              border: '2px solid #6366f1',
-              borderRadius: '0.75rem',
-              padding: '0.85rem 1rem',
-              boxShadow: '0 8px 16px rgba(99,102,241,0.25)'
-            }}
-          >
-            SIGN UP
-          </button>
-        </div>
-      </div>
-    </div>
+          <View style={styles.buttonGroup}>
+            <TouchableOpacity
+              style={styles.loginButton}
+              onPress={() => navigation.navigate('Login')}
+            >
+              <Text style={styles.buttonText}>LOGIN</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.signupButton}
+              onPress={() => navigation.navigate('Signup')}
+            >
+              <Text style={styles.buttonText}>SIGN UP</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#cbd5e1',
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+  },
+  card: {
+    width: '100%',
+    maxWidth: 420,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: 20,
+    padding: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.15,
+    shadowRadius: 40,
+    elevation: 8,
+    alignItems: 'center',
+  },
+  logo: {
+    width: 96,
+    height: 96,
+    marginBottom: 12,
+    resizeMode: 'contain',
+  },
+  subtitle: {
+    color: '#64748b',
+    marginBottom: 16,
+    fontSize: 14,
+  },
+  buttonGroup: {
+    width: '100%',
+    gap: 12,
+  },
+  loginButton: {
+    width: '100%',
+    backgroundColor: '#22d3ee',
+    borderRadius: 12,
+    paddingVertical: 13,
+    paddingHorizontal: 16,
+    borderWidth: 2,
+    borderColor: '#6366f1',
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 5,
+  },
+  signupButton: {
+    width: '100%',
+    backgroundColor: '#67e8f9',
+    borderRadius: 12,
+    paddingVertical: 13,
+    paddingHorizontal: 16,
+    borderWidth: 2,
+    borderColor: '#6366f1',
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 5,
+  },
+  buttonText: {
+    textAlign: 'center',
+    color: '#0f172a',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+});
 
 export default AuthChoice;

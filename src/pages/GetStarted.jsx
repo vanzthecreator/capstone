@@ -1,68 +1,103 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView } from 'react-native';
+import MedicalBackground from '../components/MedicalBackground';
 
-function GetStarted() {
-  const navigate = useNavigate();
-
+function GetStarted({ navigation }) {
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'linear-gradient(180deg, #d1fae5 0%, #a7f3d0 100%)',
-      padding: '1.25rem'
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '420px',
-        background: 'rgba(255,255,255,0.9)',
-        borderRadius: '1.25rem',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-        padding: '2rem',
-        textAlign: 'center',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        <div style={{
-          position: 'absolute',
-          top: '-40px',
-          right: '-40px',
-          width: '160px',
-          height: '160px',
-          background: 'rgba(16,185,129,0.15)',
-          borderRadius: '50%'
-        }} />
+    <MedicalBackground>
+      <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+        <View style={styles.content}>
+          <View style={styles.card}>
+            <View style={styles.header}>
+              <Image
+                source={{ uri: '/images/lifesignal-logo.png' }}
+                style={styles.logo}
+              />
+              <Text style={styles.title}>LifeSignal</Text>
+              <Text style={styles.subtitle}>Your Health. Your Data.</Text>
+            </View>
 
-        <div style={{ marginBottom: '1.25rem' }}>
-          <img
-            src="/images/lifesignal-logo.png"
-            alt="LifeSignal"
-            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-            style={{ width: '120px', height: '120px', objectFit: 'contain', margin: '0 auto' }}
-          />
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#0f172a' }}>LifeSignal</div>
-          <div style={{ color: '#64748b', marginTop: '0.25rem' }}>Your Health. Your Data.</div>
-        </div>
-
-        <button
-          onClick={() => navigate('/start')}
-          style={{
-            width: '100%',
-            background: '#22d3ee',
-            color: '#0f172a',
-            fontWeight: 700,
-            border: '2px solid #6366f1',
-            borderRadius: '0.75rem',
-            padding: '0.85rem 1rem',
-            boxShadow: '0 8px 16px rgba(99,102,241,0.25)'
-          }}
-        >
-          Get Started
-        </button>
-      </div>
-    </div>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate('AuthChoice')}
+            >
+              <Text style={styles.buttonText}>Get Started</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+    </MedicalBackground>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+  },
+  card: {
+    width: '100%',
+    maxWidth: 420,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: 20,
+    padding: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.15,
+    shadowRadius: 40,
+    elevation: 8,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    marginBottom: 16,
+    resizeMode: 'contain',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#0f172a',
+  },
+  subtitle: {
+    color: '#64748b',
+    marginTop: 4,
+    fontSize: 14,
+  },
+  button: {
+    width: '100%',
+    backgroundColor: '#22d3ee',
+    borderRadius: 12,
+    paddingVertical: 13,
+    paddingHorizontal: 16,
+    borderWidth: 2,
+    borderColor: '#6366f1',
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 5,
+  },
+  buttonText: {
+    textAlign: 'center',
+    color: '#0f172a',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+});
 
 export default GetStarted;

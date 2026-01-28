@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Mail, User, Lock, CalendarDays, User2 } from 'lucide-react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { Mail, User, Lock, CalendarDays, User2 } from 'lucide-react-native';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../config/firebase';
+import MedicalBackground from '../components/MedicalBackground';
 
-function Signup() {
-  const navigate = useNavigate();
+function Signup({ navigation }) {
   const [step, setStep] = useState(1);
   const [form1, setForm1] = useState({
     email: '',
@@ -18,179 +21,278 @@ function Signup() {
     password: '',
     confirm: ''
   });
+  const [error, setError] = useState('');
 
-  const handleNext = (e) => {
-    e.preventDefault();
+  const handleNext = () => {
+    if (!form1.email || !form1.firstName || !form1.lastName || !form1.username) {
+      setError('Please fill in all required fields');
+      return;
+    }
+    setError('');
     setStep(2);
     setForm2((prev) => ({ ...prev, username: form1.username }));
   };
 
-  const handleSignup = (e) => {
-    e.preventDefault();
-    if (!form2.password || form2.password !== form2.confirm) return;
-    navigate('/login');
-  };
+  const handleSignup = async () => {
+    if (!form2.password || form2.password !== form2.confirm) {
+      setError('Passwords do not match');
+      return;
+    }
+    
+    try {
+      console.log("Starting signup process...");
+      const userCredential = await createUserWithEmailAndPassword(auth, form1.email, form2.password);
+      const user = userCredential.user;
+      console.log("User created in Auth:", user.uid);
+      
+      // Update profile with username/display name
+      await updateProfile(user, {
+        displayName: `${form1.firstName} ${form1.lastName}`
+      });
 
-  const inputBase = {
-    width: '100%',
-    background: '#7dd3fc',
-    border: 'none',
-    borderRadius: '0.75rem',
-    padding: '0.75rem 1rem',
-    color: '#0f172a',
-    fontWeight: 600
+      // SAVE TO FIRESTORE
+      console.log("Attempting to save to Firestore...");
+      try {
+        await setDoc(doc(db, "users", user.uid), {
+          email: form1.email,
+          firstName: form1.firstName,
+          lastName: form1.lastName,
+          username: form1.username,
+          gender: form1.gender || 'Not Specified',
+          birthday: form1.birthday || 'Not Specified',
+          createdAt: new Date().toISOString()
+        });
+        console.log("Firestore save successful!");
+      } catch (firestoreError) {
+        console.error("Firestore Save Error:", firestoreError);
+        Alert.alert("Database Error", "Account created but failed to save profile data: " + firestoreError.message);
+      }
+
+      Alert.alert('Success', 'Account created successfully!', [
+        { text: 'OK' }
+      ]);
+    } catch (err) {
+      console.error("Signup Error:", err);
+      setError(err.message);
+    }
   };
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center',
-      padding: '20px',
-      background: 'linear-gradient(180deg, #cbd5e1 0%, #64748b 100%)'
-    }}>
-      <div style={{ width: '100%', maxWidth: '420px' }}>
-        <div style={{
-          background: 'rgba(255,255,255,0.8)',
-          borderRadius: '1.25rem',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-          padding: '1.5rem'
-        }}>
-          <div style={{ textAlign: 'center', marginBottom: '1rem', fontWeight: 700 }}>SIGN UP</div>
-          {step === 1 ? (
-            <form onSubmit={handleNext}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <Mail size={18} />
-                <input
-                  type="email"
+    <MedicalBackground>
+      <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+        <View style={styles.content}>
+          <View style={styles.card}>
+            <Text style={styles.title}>
+              {step === 1 ? 'CREATE ACCOUNT' : 'SET PASSWORD'}
+            </Text>
+
+            {step === 1 ? (
+            <View>
+              <View style={styles.inputGroup}>
+                <Mail size={18} color="#0f172a" />
+                <TextInput
                   placeholder="Email"
                   value={form1.email}
-                  onChange={(e) => setForm1({ ...form1, email: e.target.value })}
-                  style={inputBase}
-                  required
+                  onChangeText={(e) => setForm1({ ...form1, email: e })}
+                  style={styles.input}
+                  keyboardType="email-address"
                 />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <User size={18} />
-                <input
-                  type="text"
-                  placeholder="Firstname"
+              </View>
+
+              <View style={styles.inputGroup}>
+                <User size={18} color="#0f172a" />
+                <TextInput
+                  placeholder="First Name"
                   value={form1.firstName}
-                  onChange={(e) => setForm1({ ...form1, firstName: e.target.value })}
-                  style={inputBase}
-                  required
+                  onChangeText={(e) => setForm1({ ...form1, firstName: e })}
+                  style={styles.input}
                 />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <User size={18} />
-                <input
-                  type="text"
-                  placeholder="Lastname"
+              </View>
+
+              <View style={styles.inputGroup}>
+                <User size={18} color="#0f172a" />
+                <TextInput
+                  placeholder="Last Name"
                   value={form1.lastName}
-                  onChange={(e) => setForm1({ ...form1, lastName: e.target.value })}
-                  style={inputBase}
-                  required
+                  onChangeText={(e) => setForm1({ ...form1, lastName: e })}
+                  style={styles.input}
                 />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <User2 size={18} />
-                <input
-                  type="text"
+              </View>
+
+              <View style={styles.inputGroup}>
+                <User2 size={18} color="#0f172a" />
+                <TextInput
                   placeholder="Username"
                   value={form1.username}
-                  onChange={(e) => setForm1({ ...form1, username: e.target.value })}
-                  style={inputBase}
-                  required
+                  onChangeText={(e) => setForm1({ ...form1, username: e })}
+                  style={styles.input}
                 />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <User size={18} />
-                <input
-                  type="text"
+              </View>
+
+              <View style={styles.inputGroup}>
+                <User size={18} color="#0f172a" />
+                <TextInput
                   placeholder="Gender"
                   value={form1.gender}
-                  onChange={(e) => setForm1({ ...form1, gender: e.target.value })}
-                  style={inputBase}
+                  onChangeText={(e) => setForm1({ ...form1, gender: e })}
+                  style={styles.input}
                 />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                <CalendarDays size={18} />
-                <input
-                  type="date"
-                  placeholder="Birthday"
+              </View>
+
+              <View style={styles.inputGroup}>
+                <CalendarDays size={18} color="#0f172a" />
+                <TextInput
+                  placeholder="Birthday (YYYY-MM-DD)"
                   value={form1.birthday}
-                  onChange={(e) => setForm1({ ...form1, birthday: e.target.value })}
-                  style={inputBase}
+                  onChangeText={(e) => setForm1({ ...form1, birthday: e })}
+                  style={styles.input}
                 />
-              </div>
-              <button type="submit" style={{
-                width: '100%',
-                background: '#a7f3d0',
-                color: '#0f172a',
-                fontWeight: 700,
-                border: '2px solid #6366f1',
-                borderRadius: '0.75rem',
-                padding: '0.85rem 1rem'
-              }}>
-                DONE
-              </button>
-            </form>
+              </View>
+
+              {error && <Text style={styles.error}>{error}</Text>}
+
+              <TouchableOpacity style={styles.button} onPress={handleNext}>
+                <Text style={styles.buttonText}>NEXT</Text>
+              </TouchableOpacity>
+            </View>
           ) : (
-            <form onSubmit={handleSignup}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <Mail size={18} />
-                <input
-                  type="text"
-                  placeholder="USERNAME"
-                  value={form2.username}
-                  onChange={(e) => setForm2({ ...form2, username: e.target.value })}
-                  style={inputBase}
-                  required
-                />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <Lock size={18} />
-                <input
-                  type="password"
+            <View>
+              <View style={styles.inputGroup}>
+                <Lock size={18} color="#0f172a" />
+                <TextInput
                   placeholder="Password"
                   value={form2.password}
-                  onChange={(e) => setForm2({ ...form2, password: e.target.value })}
-                  style={inputBase}
-                  required
+                  onChangeText={(e) => setForm2({ ...form2, password: e })}
+                  style={styles.input}
+                  secureTextEntry
                 />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                <Lock size={18} />
-                <input
-                  type="password"
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Lock size={18} color="#0f172a" />
+                <TextInput
                   placeholder="Confirm Password"
                   value={form2.confirm}
-                  onChange={(e) => setForm2({ ...form2, confirm: e.target.value })}
-                  style={inputBase}
-                  required
+                  onChangeText={(e) => setForm2({ ...form2, confirm: e })}
+                  style={styles.input}
+                  secureTextEntry
                 />
-              </div>
-              <button type="submit" style={{
-                width: '100%',
-                background: '#67e8f9',
-                color: '#0f172a',
-                fontWeight: 700,
-                border: '2px solid #6366f1',
-                borderRadius: '0.75rem',
-                padding: '0.85rem 1rem'
-              }}>
-                Sign up
-              </button>
-            </form>
+              </View>
+
+              {error && <Text style={styles.error}>{error}</Text>}
+
+              <TouchableOpacity style={styles.submitButton} onPress={handleSignup}>
+                <Text style={styles.buttonText}>SIGN UP</Text>
+              </TouchableOpacity>
+            </View>
           )}
-          <div style={{ marginTop: '1rem', textAlign: 'center', color: '#0f172a' }}>
-            have a account already? Log in now
-          </div>
-        </div>
-      </div>
-    </div>
+
+          <View style={styles.footer}>
+            <Text style={{ color: '#0f172a' }}>Have an account already? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+              <Text style={styles.loginLink}>Log in now</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        </View>
+      </ScrollView>
+    </MedicalBackground>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  content: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+    minHeight: '100%',
+  },
+  card: {
+    width: '100%',
+    maxWidth: 420,
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.2,
+    shadowRadius: 40,
+    elevation: 10,
+  },
+  title: {
+    textAlign: 'center',
+    marginBottom: 24,
+    fontWeight: '700',
+    fontSize: 20,
+    color: '#0f172a',
+  },
+  inputGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  input: {
+    flex: 1,
+    backgroundColor: '#7dd3fc',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    color: '#0f172a',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  button: {
+    width: '100%',
+    backgroundColor: '#a7f3d0',
+    borderRadius: 12,
+    paddingVertical: 13,
+    paddingHorizontal: 16,
+    borderWidth: 2,
+    borderColor: '#6366f1',
+    marginTop: 20,
+  },
+  submitButton: {
+    width: '100%',
+    backgroundColor: '#67e8f9',
+    borderRadius: 12,
+    paddingVertical: 13,
+    paddingHorizontal: 16,
+    borderWidth: 2,
+    borderColor: '#6366f1',
+    marginTop: 20,
+  },
+  buttonText: {
+    textAlign: 'center',
+    color: '#0f172a',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  error: {
+    color: '#ef4444',
+    fontWeight: '600',
+    marginBottom: 12,
+    marginTop: 4,
+  },
+  footer: {
+    marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loginLink: {
+    color: '#2563eb',
+    fontWeight: '700',
+  },
+});
 
 export default Signup;

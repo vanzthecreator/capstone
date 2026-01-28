@@ -1,94 +1,143 @@
 import React from 'react';
-import { Home, PlusSquare, MessageSquare, User, Activity } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { View, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
+import { Home, PlusSquare, MessageSquare, User, Activity } from 'lucide-react-native';
 
-function BottomNav() {
-  const navigate = useNavigate();
-  const location = useLocation();
-
+function BottomNav({ state, descriptors, navigation }) {
   const navItems = [
-    { icon: Home, label: 'Home', path: '/home' },
-    { icon: PlusSquare, label: 'MEDIC', path: '/medic' },
-    { icon: Activity, label: '', path: '/emergency', isCenter: true }, // The central button
-    { icon: MessageSquare, label: 'Message', path: '/message' },
-    { icon: User, label: 'Profile', path: '/profile' },
+    { icon: Home, label: 'Home', route: 'home' },
+    { icon: PlusSquare, label: 'MEDIC', route: 'medic' },
+    { icon: Activity, label: '', route: 'emergency', isCenter: true },
+    { icon: MessageSquare, label: 'Message', route: 'message' },
+    { icon: User, label: 'Profile', route: 'profile' },
   ];
 
   return (
-    <div style={{
-      position: 'fixed',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      background: 'white',
-      borderTop: '1px solid #e2e8f0',
-      padding: '0.5rem 1rem',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      height: '80px',
-      zIndex: 50
-    }}>
+    <View style={styles.container}>
       {navItems.map((item, index) => {
-        const isActive = location.pathname === item.path;
-        
+        const isFocused = state.index === index;
+        const IconComponent = item.icon;
+
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: item.route,
+            canPreventDefault: true,
+          });
+
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate(item.route);
+          }
+        };
+
         if (item.isCenter) {
           return (
-            <div 
-              key={index}
-              onClick={() => navigate('/emergency')}
-              style={{
-                position: 'relative',
-                top: '-25px',
-                width: '70px',
-                height: '70px',
-                background: 'white',
-                borderRadius: '50%',
-                padding: '5px',
-                boxShadow: '0 -4px 10px rgba(0,0,0,0.1)',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{
-                width: '100%',
-                height: '100%',
-                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', // Red gradient
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                boxShadow: '0 4px 6px rgba(220, 38, 38, 0.4)'
-              }}>
-                <Activity size={32} />
-              </div>
-            </div>
+            <TouchableOpacity key={index} onPress={onPress} style={styles.centerButton}>
+              <View style={styles.centerButtonRing}>
+                <View style={styles.centerButtonInner}>
+                  <IconComponent size={34} color="white" />
+                </View>
+              </View>
+            </TouchableOpacity>
           );
         }
 
         return (
-          <div 
-            key={index} 
-            onClick={() => navigate(item.path)}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px',
-              color: isActive ? '#f97316' : '#94a3b8', // Orange if active, gray otherwise
-              cursor: 'pointer',
-              flex: 1
-            }}
+          <TouchableOpacity
+            key={index}
+            onPress={onPress}
+            style={styles.navItem}
           >
-            <item.icon size={24} />
-            <span style={{ fontSize: '0.75rem', fontWeight: isActive ? '600' : '400' }}>
-              {item.label}
-            </span>
-          </div>
+            <IconComponent
+              size={24}
+              color={isFocused ? '#f97316' : '#94a3b8'}
+            />
+            {item.label && (
+              <Text
+                style={[
+                  styles.label,
+                  { color: isFocused ? '#f97316' : '#94a3b8' },
+                  { fontWeight: isFocused ? '600' : '400' }
+                ]}
+              >
+                {item.label}
+              </Text>
+            )}
+          </TouchableOpacity>
         );
       })}
-    </div>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 8,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    height: Platform.OS === 'ios' ? 90 : 80,
+    zIndex: 9999,
+    elevation: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  navItem: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 4,
+  },
+  label: {
+    fontSize: 12,
+  },
+  centerButton: {
+    position: 'relative',
+    top: -28,
+    width: 84,
+    height: 84,
+    backgroundColor: 'transparent',
+    borderRadius: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#ef4444',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 16,
+  },
+  centerButtonRing: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 42,
+    backgroundColor: 'white',
+    borderWidth: 4,
+    borderColor: '#fecaca',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centerButtonInner: {
+    width: 70,
+    height: 70,
+    backgroundColor: '#dc2626',
+    borderRadius: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#dc2626',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+});
 
 export default BottomNav;

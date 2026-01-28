@@ -1,160 +1,242 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Animated, useWindowDimensions } from 'react-native';
 import Header from '../components/Header';
-import { Briefcase, Flame, Baby, Ambulance, Hammer, ShieldAlert } from 'lucide-react';
+import { Stethoscope, Flame, Baby, Ambulance, ShieldAlert, LifeBuoy } from 'lucide-react-native';
 
-function Emergency() {
+function Emergency({ navigation }) {
+  const { width } = useWindowDimensions();
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  // Calculate grid item width
+  // (Screen Width - Horizontal Padding (32) - Gaps (2 * 12)) / 3
+  const PADDING = 32;
+  const GAP = 12;
+  const availableWidth = width - PADDING;
+  const itemWidth = (availableWidth - (GAP * 2)) / 3;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.1,
+          duration: 1000,
+          useNativeDriver: false,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: false,
+        }),
+      ])
+    ).start();
+  }, [pulseAnim]);
+
   const safetyNumbers = [
-    { icon: Briefcase, label: 'Medical' },
-    { icon: Flame, label: 'Fire' },
-    { icon: Baby, label: 'Child protection' },
-    { icon: Ambulance, label: 'Accident' }, // Using Ambulance as proxy for crash
-    { icon: Hammer, label: 'Violence' }, // Using Hammer as proxy for weapon/violence
-    { icon: ShieldAlert, label: 'Rescue' },
+    { icon: Stethoscope, label: 'Medical' },
+    { 
+      icon: Flame, 
+      label: 'Fire', 
+      params: {
+        title: 'Fire Emergency',
+        name: 'BFP TOLEDO CITY',
+        number: '09662165466',
+        color: '#ea580c', // Orange-600
+        iconName: 'Flame'
+      }
+    },
+    { 
+      icon: Baby, 
+      label: 'Child protection',
+      params: {
+        title: 'Child Protection',
+        name: 'TOLEDO CITY WCPD',
+        number: '09156426842',
+        color: '#db2777', // Pink-600
+        iconName: 'Baby'
+      }
+    },
+    { 
+      icon: Ambulance, 
+      label: 'Accident',
+      params: {
+        title: 'Accident Response',
+        name: 'TOLEDO CITY CDRRMO',
+        number: '09610546250',
+        color: '#dc2626', // Red-600
+        iconName: 'Ambulance'
+      }
+    },
+    { 
+      icon: ShieldAlert, 
+      label: 'Violence',
+      params: {
+        title: 'Violence Report',
+        name: 'TOLEDO CITY PNP',
+        number: '09156426842',
+        color: '#7c3aed', // Violet-600
+        iconName: 'ShieldAlert'
+      }
+    },
+    { 
+      icon: LifeBuoy, 
+      label: 'Rescue',
+      params: {
+        title: 'Disaster Rescue',
+        name: 'TOLEDO CITY RESCUE',
+        number: '09568174215',
+        color: '#0891b2', // Cyan-600
+        iconName: 'LifeBuoy'
+      }
+    },
   ];
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      background: '#0f172a', // Dark background
-      color: 'white',
-      paddingBottom: '100px', // Space for bottom nav
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      <Header theme="dark" />
-      
-      {/* Background Map Effect (Placeholder) */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        opacity: 0.1,
-        background: 'radial-gradient(circle at center, #1e293b 0%, #000 100%)',
-        zIndex: 0
-      }}></div>
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+      <Header theme="dark" enableLocationNav />
 
-      <div style={{ position: 'relative', zIndex: 1, padding: '1rem' }}>
-        
-        {/* Hero Section */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-            Are you in an <br />
-            emergency?
-          </h1>
-          <p style={{ fontSize: '0.875rem', color: '#94a3b8', lineHeight: '1.5', maxWidth: '60%' }}>
+      <View style={styles.content}>
+        <View style={styles.heroSection}>
+          <Text style={styles.heroTitle}>
+            Are you in an {'\n'}emergency?
+          </Text>
+          <Text style={styles.heroText}>
             You may send a message directly to the emergency department through this app for immediate assistance.
-          </p>
-          
-          {/* Illustration Placeholder */}
-          <div style={{ 
-            position: 'absolute', 
-            top: '60px', 
-            right: '-20px', 
-            width: '180px', 
-            height: '180px', 
-            // background: 'rgba(255,255,255,0.1)', 
-            // borderRadius: '1rem',
-            // display: 'flex',
-            // alignItems: 'center',
-            // justifyContent: 'center'
-          }}>
-            {/* SVG or Image would go here */}
-            {/* <span style={{fontSize: '3rem'}}>👥</span> */}
-          </div>
-        </div>
+          </Text>
+        </View>
 
-        {/* Central Pulse Button */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center',
-          margin: '3rem 0'
-        }}>
-          <div style={{
-            width: '180px',
-            height: '180px',
-            borderRadius: '50%',
-            background: 'rgba(255, 255, 255, 0.1)', // Outer glow ring 1
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            animation: 'pulse 2s infinite'
-          }}>
-             <div style={{
-              width: '140px',
-              height: '140px',
-              borderRadius: '50%',
-              background: 'linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%)', // White center
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              boxShadow: '0 0 20px rgba(255,255,255,0.2)'
-            }}>
-               <div style={{
-                 width: '60px',
-                 height: '60px',
-                 background: 'linear-gradient(135deg, #f97316 0%, #ef4444 100%)',
-                 borderRadius: '50%',
-                 display: 'flex',
-                 alignItems: 'center',
-                 justifyContent: 'center',
-                 marginBottom: '0.5rem'
-               }}>
-                 <ShieldAlert color="white" size={32} />
-               </div>
-               <span style={{ 
-                 color: '#ef4444', 
-                 fontWeight: 'bold', 
-                 fontSize: '0.9rem' 
-               }}>LifeSignal</span>
-             </div>
-          </div>
-        </div>
+        <View style={styles.pulseContainer}>
+          <Animated.View
+            style={[
+              styles.pulseRing,
+              {
+                transform: [{ scale: pulseAnim }],
+              },
+            ]}
+          >
+            <View style={styles.centerButton}>
+              <ShieldAlert size={32} color="white" />
+              <Text style={styles.centerButtonText}>LifeSignal</Text>
+            </View>
+          </Animated.View>
+        </View>
 
-        {/* Public Safety Numbers Grid */}
-        <div>
-          <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: '#cbd5e1' }}>Public Safety Numbers</h3>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(3, 1fr)', 
-            gap: '0.75rem' 
-          }}>
-            {safetyNumbers.map((item, index) => (
-              <button key={index} style={{
-                background: 'white',
-                border: 'none',
-                borderRadius: '1rem', // Pill shape
-                padding: '0.75rem 0.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.25rem',
-                color: '#0f172a',
-                fontSize: '0.7rem',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}>
-                <item.icon size={14} color="#000" />
-                <span>{item.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-      </div>
-
-      <style>{`
-        @keyframes pulse {
-          0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); }
-          70% { box-shadow: 0 0 0 20px rgba(255, 255, 255, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
-        }
-      `}</style>
-    </div>
+        <View style={styles.safetySection}>
+          <Text style={styles.safetyTitle}>Public Safety Numbers</Text>
+          <View style={styles.safetyGrid}>
+            {safetyNumbers.map((item, index) => {
+              const IconComponent = item.icon;
+              return (
+                <TouchableOpacity 
+                  key={index} 
+                  style={[styles.safetyButton, { width: itemWidth }]}
+                  onPress={() => {
+                    if (item.label === 'Medical') {
+                      navigation.navigate('HospitalContact');
+                    } else if (item.params) {
+                      navigation.navigate('EmergencyDetail', item.params);
+                    }
+                  }}
+                >
+                  {IconComponent ? <IconComponent size={14} color="#000" /> : null}
+                  <Text style={styles.safetyLabel}>{item.label}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#0f172a',
+  },
+  scrollContent: {
+    paddingBottom: 100,
+  },
+  content: {
+    padding: 16,
+    position: 'relative',
+    zIndex: 1,
+  },
+  heroSection: {
+    marginBottom: 32,
+  },
+  heroTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 8,
+  },
+  heroText: {
+    fontSize: 14,
+    color: '#94a3b8',
+    lineHeight: 21,
+    maxWidth: '60%',
+  },
+  pulseContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 48,
+  },
+  pulseRing: {
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  centerButton: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: '#dc2626',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#dc2626',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 10,
+  },
+  centerButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  safetySection: {
+    marginTop: 32,
+  },
+  safetyTitle: {
+    fontSize: 16,
+    color: '#cbd5e1',
+    marginBottom: 16,
+  },
+  safetyGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  safetyButton: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  safetyLabel: {
+    color: '#0f172a',
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+});
 
 export default Emergency;

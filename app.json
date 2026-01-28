@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "life-signal",
+    "slug": "life-signal",
+    "version": "1.0.0",
+    "scheme": "lifesignal",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTabletMode": true,
+      "bundleIdentifier": "com.lifesignal.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.lifesignal.app"
+    },
+  "web": {
+    "favicon": "./src/assets/2.png"
+  },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to update your profile picture.",
+          "cameraPermission": "The app accesses your camera to take your profile picture.",
+          "microphonePermission": "The app accesses your microphone to record videos."
+        }
+      ]
+    ]
+  }
+}
