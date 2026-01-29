@@ -75,13 +75,14 @@ function Header({ theme = 'light', enableLocationNav = false }) {
 const styles = StyleSheet.create({
   headerContainer: {
     width: '100%',
-    paddingVertical: 12,
+    paddingVertical: 14,
+    paddingTop: 16,
   },
   headerContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
     alignSelf: 'center',
     width: '100%',
     maxWidth: 1100,
@@ -89,34 +90,39 @@ const styles = StyleSheet.create({
   leftContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
   },
   profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     overflow: 'hidden',
     backgroundColor: '#e2e8f0',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
   locationContainer: {
     // cursor is not a valid React Native style property
   },
   locationLabel: {
-    fontSize: 12,
-    marginBottom: 2,
+    fontSize: 11,
+    marginBottom: 3,
+    fontWeight: '500',
+    opacity: 0.7,
   },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
   },
   locationText: {
-    fontWeight: '600',
+    fontWeight: '700',
     fontSize: 14,
+    letterSpacing: -0.2,
   },
   iconContainer: {
     flexDirection: 'row',
-    gap: 16,
+    gap: 18,
     alignItems: 'center',
   },
 });
