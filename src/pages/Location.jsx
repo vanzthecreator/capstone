@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Linking, Platform
 import { ChevronLeft, MapPin } from 'lucide-react-native';
 import * as Location from 'expo-location';
 
-function Location({ navigation }) {
+function LocationScreen({ navigation }) {
   const [coords, setCoords] = useState(null);
   const [error, setError] = useState('');
   const [address, setAddress] = useState('Locating...');
@@ -202,4 +202,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Location;
+export default LocationScreen;
